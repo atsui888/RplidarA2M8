@@ -554,7 +554,7 @@ try:
         # and instead of 'row/col' coord, we send in terms of 'dir (1 to 9) / Zone#'
         
         if (measurement[idx_QOL]>qualityOfLaser_treshold):
-            if(((measurement[idx_AngleDeg] >330.0) and (measurement[idx_AngleDeg] < 359.99999)) or ((measurement[idx_AngleDeg] >0.0) and (measurement[idx_AngleDeg] < 30.0))):                
+            if(((measurement[idx_AngleDeg] >330.0) and (measurement[idx_AngleDeg] < 359.99999999)) or ((measurement[idx_AngleDeg] >0.00000001) and (measurement[idx_AngleDeg] < 30.0))):                
                 # slot measurement into obstacleMap
                 if(measurement[idx_DistMm]>=8000):
                     break;
