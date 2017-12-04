@@ -29,7 +29,7 @@
     
   void RplidarA2M8_Processing() {
   // if obstacle is detected, it is immediately recorded
-  // however, if obstacle is no longer recorded, it needs to be "not recorded N times before it is 
+  // however, if obstacle is no longer detected, it needs to be "not recorded N times before it is 
   // deleted.        
     
     for(byte i = 0;i<RplidarA2M8_ObsDir_Detected_RowLen;++i) 
