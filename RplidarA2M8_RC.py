@@ -11,11 +11,17 @@ import numpy as np
 from collections import namedtuple
 
 # globals
+# ------------------------------------------------
+
+lidarPort = '/dev/ttyUSB0'
+#lidarPort = '/dev/ttyUSB1'
+arduinoPort = '/dev/ttyACM0'
+#arduinoPort = '/dev/ttyACM1'
+
 obstacleMap_CenterRow = 8
 obstacleMap_CenterCol = 8
 obstacleMap_Row_Len = 17
 obstacleMap_Col_Len  = 17
-qualityOfLaser_treshold = 15
 # measurement[0] # bool new scan?
 idx_NewScan = 0
 # measurement[1] # int quality of laser
@@ -480,14 +486,212 @@ class ExpressPacket(namedtuple('express_packet',
         return cls(d, a, new_scan, start_angle)
 
 
+def CA_SlotFront():
+    # slot measurements into CA Front    
+    if(((measurement[idx_AngleDeg] >350.0) and (measurement[idx_AngleDeg] < 359.99999)) or ((measurement[idx_AngleDeg] >0.0) and (measurement[idx_AngleDeg] < 10.0))):
+        # slot measurement into obstacleMap
+        if((measurement[idx_DistMm]>200) and (measurement[idx_DistMm]<8000)):
+            if(measurement[idx_DistMm]<1000):
+                obstacleMap[7][obstacleMap_CenterCol] = measurement[idx_DistMm]                
+                if ser is not None:
+                    ser.write(b"\x15") # d21, dir (2) forward, zone 1 = 0x15
+                #print('Obstacle Front -> Dist: {} mm / QOL ---> {} '.format(measurement[idx_DistMm],measurement[idx_QOL]))
+            elif(measurement[idx_DistMm]<2000):
+                obstacleMap[6][obstacleMap_CenterCol] = measurement[idx_DistMm] 
+                if ser is not None:
+                    ser.write(b"\x16")  # d22, dir forward (2), zone 2 = 0x16
+                # debug code
+                #print('Obstacle Front -> Dist: {} mm / QOL ---> {} '.format(measurement[idx_DistMm],measurement[idx_QOL]))           
+                #print("Hello from RC")
+            elif(measurement[idx_DistMm]<3000):
+                obstacleMap[5][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x17")  # d23, dir forward (2), zone 3                              
+            elif (measurement[idx_DistMm]<4000):
+                obstacleMap[4][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x18")  # d24, dir forward (2), zone 4
+            elif (measurement[idx_DistMm]<5000):
+                obstacleMap[3][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x19")  # d25, dir forward (2), zone 5                
+            elif (measurement[idx_DistMm]<6000):
+                obstacleMap[2][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x1A")  # d26, dir forward (2), zone 6                
+            elif (measurement[idx_DistMm]<7000):                
+                obstacleMap[1][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x1B")  # d27, dir forward (2), zone 7
+            elif (measurement[idx_DistMm]<8000):                
+                obstacleMap[0][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x1C")  # d27, dir forward (2), zone 8
+
+def CA_SlotFront_ShowRange():
+    # debug code
+    for i in range(obstacleMap_CenterRow-1,-1,-1) :
+        if(obstacleMap[i][obstacleMap_CenterCol]>0) :
+            print('Obstacle at FRONT -> row: {}, col: {} / Dist: -> {} mm'.format(i,obstacleMap_CenterCol, measurement[idx_DistMm]))
+
+def CA_SlotFront_ShowQOL():
+    # debug code
+    for i in range(obstacleMap_CenterRow-1,-1,-1) :
+        if(obstacleMap[i][obstacleMap_CenterCol]>0) :
+            print('Obstacle at FRONT ->  Dist: -> {} mm / QOL: -> {} '.format(measurement[idx_DistMm], measurement[idx_QOL]))
+            
+                    
+def CA_SlotBack():
+    # slot measurements into CA Back
+    if((measurement[idx_AngleDeg] >172.0) and (measurement[idx_AngleDeg] < 188.0)):
+        # slot measurement into obstacleMap
+        if((measurement[idx_DistMm]>200) and (measurement[idx_DistMm]<8000)):                
+            if(measurement[idx_DistMm]<1000):
+                obstacleMap[9][obstacleMap_CenterCol] = measurement[idx_DistMm]                    
+                if ser is not None:
+                    ser.write(b"\x51") # d81, Back Zone 1
+            elif(measurement[idx_DistMm]<2000):
+                obstacleMap[10][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x52") # d82, Back Zone 2
+            elif (measurement[idx_DistMm]<3000):
+                obstacleMap[11][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x53") # d83, Back Zone 3                                
+            elif (measurement[idx_DistMm]<4000):
+                obstacleMap[12][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x54") # d84, Back Zone 4
+            elif (measurement[idx_DistMm]<5000):
+                obstacleMap[13][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x55") # d85, Back Zone 5
+            elif (measurement[idx_DistMm]<6000):                
+                obstacleMap[14][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x56") # d86, Back Zone 6
+            elif (measurement[idx_DistMm]<7000):
+                obstacleMap[15][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x57") # d87, Back Zone 7
+            elif (measurement[idx_DistMm]<8000):
+                obstacleMap[16][obstacleMap_CenterCol] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x58") # d88, Back Zone 8
+
+
+
+def CA_SlotBack_ShowRange():
+    for i in range(obstacleMap_CenterRow+1,17) :
+        if(obstacleMap[i][obstacleMap_CenterCol]>0) :
+            print('Obstacle at BACK -> row: {}, col: {} / Dist: -> {} mm'.format(i,obstacleMap_CenterCol, measurement[idx_DistMm]))
+
+def CA_SlotBack_ShowQOL():
+    for i in range(obstacleMap_CenterRow+1,17) :
+        if(obstacleMap[i][obstacleMap_CenterCol]>0) :
+            print('Obstacle at Back ->  Dist: -> {} mm / QOL: -> {} '.format(measurement[idx_DistMm], measurement[idx_QOL]))
+
+def CA_SlotLeft():
+    # slot measurements into CA Left
+    if((measurement[idx_AngleDeg] >260.0) and (measurement[idx_AngleDeg] < 280.0)) :
+        # slot measurement into obstacleMap
+        if((measurement[idx_DistMm]>200) and (measurement[idx_DistMm]<8000)):
+            if(measurement[idx_DistMm]<1000):                
+                obstacleMap[obstacleMap_CenterRow][7] = measurement[idx_DistMm]                    
+                if ser is not None:
+                    ser.write(b"\x29") #d41, direction 4, Zone1                        
+            elif(measurement[idx_DistMm]<2000):                
+                obstacleMap[obstacleMap_CenterRow][6] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x2A") #d42, direction 4, zone 2
+            elif (measurement[idx_DistMm]<3000):                
+                obstacleMap[obstacleMap_CenterRow][5] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x2B") #d43, direction 4, zone 3
+            elif (measurement[idx_DistMm]<4000):                
+                obstacleMap[obstacleMap_CenterRow][4] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x2C") #d44, direction 4, zone 4
+            elif (measurement[idx_DistMm]<5000):                
+                obstacleMap[obstacleMap_CenterRow][3] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x2D") #d45, direction 4, zone 5
+            elif (measurement[idx_DistMm]<6000):                
+                obstacleMap[obstacleMap_CenterRow][2] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x2E") #d46, direction 4, zone 6
+            elif (measurement[idx_DistMm]<7000):                
+                obstacleMap[obstacleMap_CenterRow][1] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x2F") #d47, direction 4, zone 7
+            elif (measurement[idx_DistMm]<8000):                
+                obstacleMap[obstacleMap_CenterRow][0] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x30") #d48, direction 4, zone 8
+                    
+def CA_SlotLeft_ShowRange():
+    for i in range(0,obstacleMap_CenterCol) :
+        if(obstacleMap[obstacleMap_CenterRow][i]>0) :
+            print('Obstacle at LEFT -> row: {}, col: {} / Dist: -> {} mm'.format(obstacleMap_CenterRow,i,measurement[idx_DistMm]))
+
+def CA_SlotLeft_ShowQOL():
+    for i in range(0,obstacleMap_CenterCol) :
+        if(obstacleMap[obstacleMap_CenterRow][i]>0) :
+            print('Obstacle at LEFT ->  Dist: -> {} mm / QOL: -> {} '.format(measurement[idx_DistMm], measurement[idx_QOL])) 
+            
+def CA_SlotRight():
+    # slot measurements into CA Right
+    if((measurement[idx_AngleDeg] >80.0) and (measurement[idx_AngleDeg] < 100.0)):
+        # slot measurement into obstacleMap        
+        if((measurement[idx_DistMm]>200) and (measurement[idx_DistMm]<8000)):                
+            if(measurement[idx_DistMm]<1000):                
+                obstacleMap[obstacleMap_CenterRow][9] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x3D") #aka 61 -> dir Right, Zone 1            
+            elif(measurement[idx_DistMm]<2000):                
+                obstacleMap[obstacleMap_CenterRow][10] = measurement[idx_DistMm]                
+                if ser is not None:
+                    ser.write(b"\x3E") #aka 62 -> dir Right, Zone 2
+            elif(measurement[idx_DistMm]<3000):                
+                obstacleMap[obstacleMap_CenterRow][11] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x3F") #aka 63 -> dir Right, Zone 3
+            elif(measurement[idx_DistMm]<4000):                
+                obstacleMap[obstacleMap_CenterRow][12] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x40") #aka 64 -> dir Right, Zone 4
+            elif(measurement[idx_DistMm]<5000):                
+                obstacleMap[obstacleMap_CenterRow][13] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x41") #aka 65 -> dir Right, Zone 5
+            elif(measurement[idx_DistMm]<6000):                
+                obstacleMap[obstacleMap_CenterRow][14] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x42") #aka 66 -> dir Right, Zone 6
+            elif(measurement[idx_DistMm]<7000):                
+                obstacleMap[obstacleMap_CenterRow][15] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x43") #aka 67 -> dir Right, Zone 7
+            elif(measurement[idx_DistMm]<8000):                
+                obstacleMap[obstacleMap_CenterRow][16] = measurement[idx_DistMm]
+                if ser is not None:
+                    ser.write(b"\x44") #aka 68 -> dir Right, Zone 8
+
+def CA_SlotRight_ShowRange():
+    for i in range(obstacleMap_CenterCol,obstacleMap_Col_Len) :
+        if(obstacleMap[obstacleMap_CenterRow][i]>0) :                            
+            print('Obstacle at RIGHT ->  Dist: -> {} mm / QOL: -> {} '.format(measurement[idx_DistMm], measurement[idx_QOL]))
+
+
+def CA_SlotRight_ShowQOL():
+    for i in range(obstacleMap_CenterCol,obstacleMap_Col_Len) :
+        if(obstacleMap[obstacleMap_CenterRow][i]>0) :                            
+            print('Obstacle at RIGHT ->  Dist: -> {} mm / QOL: -> {} '.format(measurement[idx_DistMm], measurement[idx_QOL]))
+
+
+
 # Main()
 # ===========================================================================================================
-
-lidarPort = '/dev/ttyUSB0'
-#lidarPort = '/dev/ttyUSB1'
-arduinoPort = '/dev/ttyACM0'
-#arduinoPort = '/dev/ttyACM1'
-
 
 try:
     ser = serial.Serial(arduinoPort,115200,timeout=0.1)    
@@ -551,163 +755,27 @@ try:
         # in future, each of the 8 zones will send data to MCU and will send the 'row/col' coordinates
         # so that MCU can fill in the entire MAP array
         # for now, in the interest of time, we only send zone 1 and 2 (<2m>1m, and <1m)
-        # and instead of 'row/col' coord, we send in terms of 'dir (1 to 9) / Zone#'
+        # and instead of 'row/col' coord, we send in terms of 'dir (1 to 9) / Zone#'        
         
-        if (measurement[idx_QOL]>qualityOfLaser_treshold):
-            if(((measurement[idx_AngleDeg] >330.0) and (measurement[idx_AngleDeg] < 359.99999999)) or ((measurement[idx_AngleDeg] >0.00000001) and (measurement[idx_AngleDeg] < 30.0))):                
-                # slot measurement into obstacleMap
-                if(measurement[idx_DistMm]>=8000):
-                    break;
-                elif((measurement[idx_DistMm]>7000) and (measurement[idx_DistMm]<8000)):
-                    obstacleMap[0][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                elif (measurement[idx_DistMm]>6000):
-                    obstacleMap[1][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                elif (measurement[idx_DistMm]>5000):
-                    obstacleMap[2][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                elif (measurement[idx_DistMm]>4000):
-                    obstacleMap[3][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                elif (measurement[idx_DistMm]>3000):
-                    obstacleMap[4][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                elif (measurement[idx_DistMm]>2000):
-                    obstacleMap[5][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                elif (measurement[idx_DistMm]>1000):
-                    obstacleMap[6][obstacleMap_CenterCol] = measurement[idx_DistMm]                    
-                    if ser is not None:
-                        ser.write(b"\x16")  # d22                                          
-                else:
-                    obstacleMap[7][obstacleMap_CenterCol] = measurement[idx_DistMm]                    
-                    if ser is not None:
-                        ser.write(b"\x15") # d21
-
-                # debug code 
-                #for i in range(obstacleMap_CenterRow-1,-1,-1) :
-                    #if(obstacleMap[i][obstacleMap_CenterCol]>0) :
-                        #print('Obstacle at FRONT -> row: {}, col: {} / Dist: -> {} mm'.format(i,obstacleMap_CenterCol, measurement[idx_DistMm]))
-            # ~~~~~~~~ chk FRONT end ~~~~~~~~~~~~~~~~~~~~
-            
-            
-            # ~~~~~~~~ chk LEFT ~~~~~~~~~~~~~~~~~~~~~~~~
-            if (measurement[idx_QOL]>qualityOfLaser_treshold):
-                if((measurement[idx_AngleDeg] >240.0) and (measurement[idx_AngleDeg] < 300.0)) :                
-                    # slot measurement into obstacleMap
-                    if(measurement[idx_DistMm]>=8000):
-                        break
-                    elif((measurement[idx_DistMm]>7000) and (measurement[idx_DistMm]<8000)):
-                        obstacleMap[obstacleMap_CenterRow][0] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>6000):
-                        obstacleMap[obstacleMap_CenterRow][1] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>5000):
-                        obstacleMap[obstacleMap_CenterRow][2] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>4000):
-                        obstacleMap[obstacleMap_CenterRow][3] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>3000):
-                        obstacleMap[obstacleMap_CenterRow][4] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>2000):
-                        obstacleMap[obstacleMap_CenterRow][5] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>1000):
-                        obstacleMap[obstacleMap_CenterRow][6] = measurement[idx_DistMm]
-                        if ser is not None:
-                            ser.write(b"\x30") #d48
-                    else:
-                        obstacleMap[obstacleMap_CenterRow][7] = measurement[idx_DistMm]
-                        if ser is not None:
-                            ser.write(b"\x29") #d47
-
-                    # debug code 
-                    #for i in range(0,obstacleMap_CenterCol) :
-                        #if(obstacleMap[obstacleMap_CenterRow][i]>0) :
-                            #print('Obstacle at LEFT -> row: {}, col: {} / Dist: -> {} mm'.format(obstacleMap_CenterRow,i,measurement[idx_DistMm]))
-                            
-            # ~~~~~~~~ chk left end ~~~~~~~~~~~~~~~~~~~~~~~~
-
-            # ~~~~~~~~ chk RIGHT start ~~~~~~~~~~~~~~~~~~~~~~~
-            if (measurement[idx_QOL]>qualityOfLaser_treshold):
-                if((measurement[idx_AngleDeg] >60.0) and (measurement[idx_AngleDeg] < 120.0)) :                
-                    # slot measurement into obstacleMap
-                    if(measurement[idx_DistMm]>=8000):
-                        break;
-                    elif((measurement[idx_DistMm]>7000) and (measurement[idx_DistMm]<8000)):
-                        obstacleMap[obstacleMap_CenterRow][16] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>6000):
-                        obstacleMap[obstacleMap_CenterRow][15] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>5000):
-                        obstacleMap[obstacleMap_CenterRow][14] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>4000):
-                        obstacleMap[obstacleMap_CenterRow][13] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>3000):
-                        obstacleMap[obstacleMap_CenterRow][12] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>2000):
-                        obstacleMap[obstacleMap_CenterRow][11] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>1000):
-                        obstacleMap[obstacleMap_CenterRow][10] = measurement[idx_DistMm]
-                        #print('\n col 10: >1m <2m')
-                        if ser is not None:
-                            ser.write(b"\x3E") #aka 62 -> dir Right, Zone 2
-                    else:
-                        obstacleMap[obstacleMap_CenterRow][9] = measurement[idx_DistMm]
-                        #print('\n col 9: <1m')
-                        if ser is not None:
-                            ser.write(b"\x3D") #aka 61 -> dir Right, Zone 1
-
-                    # debug code 
-                    #for i in range(obstacleMap_CenterCol,obstacleMap_Col_Len) :
-                        #if(obstacleMap[obstacleMap_CenterRow][i]>0) :                            
-                            #print('Obstacle at RIGHT -> row: {}, col: {} / Dist: -> {} mm'.format(obstacleMap_CenterRow,i,measurement[idx_DistMm]))
-                    
-
-            # ~~~~~~~~ chk right end ~~~~~~~~~~~~~~~~~~~~~~~
-
-            # ~~~~~~~~ chk BACK start ~~~~~~~~~~~~~~~~~~~~~~~~            
-            if (measurement[idx_QOL]>qualityOfLaser_treshold):
-                if((measurement[idx_AngleDeg] >150.0) and (measurement[idx_AngleDeg] < 210.0)) :                
-                    # slot measurement into obstacleMap
-                    if(measurement[idx_DistMm]>=8000):
-                        break;
-                    elif((measurement[idx_DistMm]>7000) and (measurement[idx_DistMm]<8000)):
-                        obstacleMap[16][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>6000):
-                        obstacleMap[15][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>5000):
-                        obstacleMap[14][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>4000):
-                        obstacleMap[13][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>3000):
-                        obstacleMap[12][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>2000):
-                        obstacleMap[11][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                    elif (measurement[idx_DistMm]>1000):
-                        obstacleMap[10][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                        #print('\n row 10: <2m but >1m')
-                        if ser is not None:
-                            ser.write(b"\x52") # dir back is 8, zone 2 is <2m/>1m from robot, x52 is d82
-                    else:
-                        obstacleMap[9][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                        #print('\n row 9: <1m')
-                        if ser is not None:
-                            ser.write(b"\x51") # dir back is 8, zone 1 is <1m from robot, x51 is d81
-
-                    # debug code 
-                    #for i in range(obstacleMap_CenterRow+1,17) :
-                    #   if(obstacleMap[i][obstacleMap_CenterCol]>0) :
-                    #        print('Obstacle at BACK -> row: {}, col: {} / Dist: -> {} mm'.format(i,obstacleMap_CenterCol, measurement[idx_DistMm]))                            
-
-            # ~~~~~~~~ chk back end ~~~~~~~~~~~~~~~~~~~~~~~~~~        
-
-            # ~~~~~~~~ chk Comms request from MCU ~~~~~~~~
-            # if purely CA, we just need to send the closest obstacle to robot and then break;
-            # if we wish to create a whole obstacle map, then we need to send the entire detected obstacle/s to robot
-            #read_serial=ser.readline().strip()
-            #read_serial=read_serial.decode('utf-8')      
-            #print(read_serial)
-            #if(read_serial == "0A") :
-                #print("mcu wants data")
-
-            # currently, we do not wait for comms request from MCU, we send zone 1 and zone 2 (within 1m and within 2m) straight away  to MCU arduino
-            # this is for performance reasons, however, if MCU has different types of request, this mtd will fail.
-            # also need to test if MCU buffer overflows if input rate is too fast...
-
-            # ~~~~~~~~ RESET obstacle map ~~~~~~~~~~~~~~~~~~~~
-            obstacleMap.fill(0)        
+        CA_SlotFront()
+        #CA_SlotFront_ShowRange()
+        #CA_SlotFront_ShowQOL()
+        
+        CA_SlotLeft()
+        #CA_SlotLeft_ShowRange()
+        #CA_SlotLeft_ShowQOL()
+        
+        CA_SlotRight()
+        #CA_SlotRight_ShowRange()
+        #CA_SlotRight_ShowQOL()
+        
+        CA_SlotBack()
+        #CA_SlotBack_ShowRange()
+        #CA_SlotBack_ShowQOL()
+                
+        
+        # ~~~~~~~~ RESET obstacle map ~~~~~~~~~~~~~~~~~~~~
+        obstacleMap.fill(0)        
 except:
     print('\n... Stopping ...\n')
 
