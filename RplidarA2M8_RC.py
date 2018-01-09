@@ -32,6 +32,11 @@ idx_AngleDeg = 2
 # measurement[3] # float distance in mm
 idx_DistMm = 3
 
+lidarTimer_Prev = 0
+lidarTimer_Now = 0
+lidarTimer_Treshold = 0
+
+
 SYNC_BYTE = b'\xA5'
 SYNC_BYTE2 = b'\x5A'
 
@@ -505,28 +510,28 @@ def CA_SlotFront():
                 #print("Hello from RC")
             elif(measurement[idx_DistMm]<3000):
                 obstacleMap[5][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x17")  # d23, dir forward (2), zone 3                              
+                #if ser is not None:
+                    #ser.write(b"\x17")  # d23, dir forward (2), zone 3                              
             elif (measurement[idx_DistMm]<4000):
                 obstacleMap[4][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x18")  # d24, dir forward (2), zone 4
+                #if ser is not None:
+                    #ser.write(b"\x18")  # d24, dir forward (2), zone 4
             elif (measurement[idx_DistMm]<5000):
                 obstacleMap[3][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x19")  # d25, dir forward (2), zone 5                
+                #if ser is not None:
+                    #ser.write(b"\x19")  # d25, dir forward (2), zone 5                
             elif (measurement[idx_DistMm]<6000):
                 obstacleMap[2][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x1A")  # d26, dir forward (2), zone 6                
+                #if ser is not None:
+                    #ser.write(b"\x1A")  # d26, dir forward (2), zone 6                
             elif (measurement[idx_DistMm]<7000):                
                 obstacleMap[1][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x1B")  # d27, dir forward (2), zone 7
+                #if ser is not None:
+                    #ser.write(b"\x1B")  # d27, dir forward (2), zone 7
             elif (measurement[idx_DistMm]<8000):                
                 obstacleMap[0][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x1C")  # d27, dir forward (2), zone 8
+                #if ser is not None:
+                    #ser.write(b"\x1C")  # d27, dir forward (2), zone 8
 
 def CA_SlotFront_ShowRange():
     # debug code
@@ -556,28 +561,28 @@ def CA_SlotBack():
                     ser.write(b"\x52") # d82, Back Zone 2
             elif (measurement[idx_DistMm]<3000):
                 obstacleMap[11][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x53") # d83, Back Zone 3                                
+                #if ser is not None:
+                    #ser.write(b"\x53") # d83, Back Zone 3                                
             elif (measurement[idx_DistMm]<4000):
                 obstacleMap[12][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x54") # d84, Back Zone 4
+                #if ser is not None:
+                    #ser.write(b"\x54") # d84, Back Zone 4
             elif (measurement[idx_DistMm]<5000):
                 obstacleMap[13][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x55") # d85, Back Zone 5
+                #if ser is not None:
+                    #ser.write(b"\x55") # d85, Back Zone 5
             elif (measurement[idx_DistMm]<6000):                
                 obstacleMap[14][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x56") # d86, Back Zone 6
+                #if ser is not None:
+                    #ser.write(b"\x56") # d86, Back Zone 6
             elif (measurement[idx_DistMm]<7000):
                 obstacleMap[15][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x57") # d87, Back Zone 7
+                #if ser is not None:
+                    #ser.write(b"\x57") # d87, Back Zone 7
             elif (measurement[idx_DistMm]<8000):
                 obstacleMap[16][obstacleMap_CenterCol] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x58") # d88, Back Zone 8
+                #if ser is not None:
+                    #ser.write(b"\x58") # d88, Back Zone 8
 
 
 
@@ -606,28 +611,28 @@ def CA_SlotLeft():
                     ser.write(b"\x2A") #d42, direction 4, zone 2
             elif (measurement[idx_DistMm]<3000):                
                 obstacleMap[obstacleMap_CenterRow][5] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x2B") #d43, direction 4, zone 3
+                #if ser is not None:
+                    #ser.write(b"\x2B") #d43, direction 4, zone 3
             elif (measurement[idx_DistMm]<4000):                
                 obstacleMap[obstacleMap_CenterRow][4] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x2C") #d44, direction 4, zone 4
+                #if ser is not None:
+                    #ser.write(b"\x2C") #d44, direction 4, zone 4
             elif (measurement[idx_DistMm]<5000):                
                 obstacleMap[obstacleMap_CenterRow][3] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x2D") #d45, direction 4, zone 5
+                #if ser is not None:
+                    #ser.write(b"\x2D") #d45, direction 4, zone 5
             elif (measurement[idx_DistMm]<6000):                
                 obstacleMap[obstacleMap_CenterRow][2] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x2E") #d46, direction 4, zone 6
+                #if ser is not None:
+                    #ser.write(b"\x2E") #d46, direction 4, zone 6
             elif (measurement[idx_DistMm]<7000):                
                 obstacleMap[obstacleMap_CenterRow][1] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x2F") #d47, direction 4, zone 7
+                #if ser is not None:
+                    #ser.write(b"\x2F") #d47, direction 4, zone 7
             elif (measurement[idx_DistMm]<8000):                
                 obstacleMap[obstacleMap_CenterRow][0] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x30") #d48, direction 4, zone 8
+                #if ser is not None:
+                    #ser.write(b"\x30") #d48, direction 4, zone 8
                     
 def CA_SlotLeft_ShowRange():
     for i in range(0,obstacleMap_CenterCol) :
@@ -654,28 +659,28 @@ def CA_SlotRight():
                     ser.write(b"\x3E") #aka 62 -> dir Right, Zone 2
             elif(measurement[idx_DistMm]<3000):                
                 obstacleMap[obstacleMap_CenterRow][11] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x3F") #aka 63 -> dir Right, Zone 3
+                #if ser is not None:
+                    #ser.write(b"\x3F") #aka 63 -> dir Right, Zone 3
             elif(measurement[idx_DistMm]<4000):                
                 obstacleMap[obstacleMap_CenterRow][12] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x40") #aka 64 -> dir Right, Zone 4
+                #if ser is not None:
+                    #ser.write(b"\x40") #aka 64 -> dir Right, Zone 4
             elif(measurement[idx_DistMm]<5000):                
                 obstacleMap[obstacleMap_CenterRow][13] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x41") #aka 65 -> dir Right, Zone 5
+                #if ser is not None:
+                    #ser.write(b"\x41") #aka 65 -> dir Right, Zone 5
             elif(measurement[idx_DistMm]<6000):                
                 obstacleMap[obstacleMap_CenterRow][14] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x42") #aka 66 -> dir Right, Zone 6
+                #if ser is not None:
+                    #ser.write(b"\x42") #aka 66 -> dir Right, Zone 6
             elif(measurement[idx_DistMm]<7000):                
                 obstacleMap[obstacleMap_CenterRow][15] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x43") #aka 67 -> dir Right, Zone 7
+                #if ser is not None:
+                    #ser.write(b"\x43") #aka 67 -> dir Right, Zone 7
             elif(measurement[idx_DistMm]<8000):                
                 obstacleMap[obstacleMap_CenterRow][16] = measurement[idx_DistMm]
-                if ser is not None:
-                    ser.write(b"\x44") #aka 68 -> dir Right, Zone 8
+                #if ser is not None:
+                    #ser.write(b"\x44") #aka 68 -> dir Right, Zone 8
 
 def CA_SlotRight_ShowRange():
     for i in range(obstacleMap_CenterCol,obstacleMap_Col_Len) :
@@ -743,20 +748,23 @@ obstacleMap = np.zeros((obstacleMap_Row_Len,obstacleMap_Col_Len),int)
 read_serial = ''
 MCUInput = ''
 
+lidarTimer_Treshold = 0.5 # 0.5 second
+lidarTimer_Prev = time.time()
+    
+for measurement in lidar.iter_measures(max_buf_meas=500):    
+    # ~~~~~~~~ chk FRONT start ~~~~~~~~~~~~~~~~~~~~
+    # Lidar only checks and sends the results to MCU. It does NOT make any kind of
+    # decision of whether to stop the robot or not.
+    # each cycle, each 'measurement' is checked for the zone.
+    # if it falls within any of the 8 zones, this module will send the data to MCU
+    # it is up to MCU to decide what to do with the data or to ignore it.
+    # in future, each of the 8 zones will send data to MCU and will send the 'row/col' coordinates
+    # so that MCU can fill in the entire MAP array
+    # for now, in the interest of time, we only send zone 1 and 2 (<2m>1m, and <1m)
+    # and instead of 'row/col' coord, we send in terms of 'dir (1 to 9) / Zone#'        
 
-try:    
-    for measurement in lidar.iter_measures(max_buf_meas=500):    
-        # ~~~~~~~~ chk FRONT start ~~~~~~~~~~~~~~~~~~~~
-        # Lidar only checks and sends the results to MCU. It does NOT make any kind of
-        # decision of whether to stop the robot or not.
-        # each cycle, each 'measurement' is checked for the zone.
-        # if it falls within any of the 8 zones, this module will send the data to MCU
-        # it is up to MCU to decide what to do with the data or to ignore it.
-        # in future, each of the 8 zones will send data to MCU and will send the 'row/col' coordinates
-        # so that MCU can fill in the entire MAP array
-        # for now, in the interest of time, we only send zone 1 and 2 (<2m>1m, and <1m)
-        # and instead of 'row/col' coord, we send in terms of 'dir (1 to 9) / Zone#'        
-        
+    lidarTimer_Now = time.time()
+    if((lidarTimer_Now - lidarTimer_Prev) > lidarTimer_Treshold):
         CA_SlotFront()
         #CA_SlotFront_ShowRange()
         #CA_SlotFront_ShowQOL()
@@ -771,17 +779,11 @@ try:
         
         CA_SlotBack()
         #CA_SlotBack_ShowRange()
-        #CA_SlotBack_ShowQOL()
-                
+        #CA_SlotBack_ShowQOL()                
         
         # ~~~~~~~~ RESET obstacle map ~~~~~~~~~~~~~~~~~~~~
         obstacleMap.fill(0)        
-except:
-    print('\n... Stopping ...\n')
+        lidarTimer_Prev = lidarTimer_Now
 
-lidar.stop()
-time.sleep(.05)
-lidar.stop_motor()
-time.sleep(.05)
-lidar.disconnect()
+
 
