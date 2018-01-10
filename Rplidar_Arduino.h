@@ -5,7 +5,7 @@
   const byte LEDPin = 13;
   
   // Obstacle detection array
-  const unsigned int RplidarA2M8_ObsRemoval_Treshold = 30000;
+  const unsigned int RplidarA2M8_ObsRemoval_Treshold = 60000;
   // on first detection, it is assigned 
   const byte RplidarA2M8_ObsDir_Detected_RowLen = 4;  
   const byte RplidarA2M8_ObsDir_Detected_ColLen = 8;

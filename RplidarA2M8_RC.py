@@ -748,7 +748,7 @@ obstacleMap = np.zeros((obstacleMap_Row_Len,obstacleMap_Col_Len),int)
 read_serial = ''
 MCUInput = ''
 
-lidarTimer_Treshold = 0.5 # 0.5 second
+lidarTimer_Treshold = 0.025 # 0.05 second
 lidarTimer_Prev = time.time()
     
 for measurement in lidar.iter_measures(max_buf_meas=500):    
@@ -765,11 +765,11 @@ for measurement in lidar.iter_measures(max_buf_meas=500):
 
     lidarTimer_Now = time.time()
     if((lidarTimer_Now - lidarTimer_Prev) > lidarTimer_Treshold):
-        CA_SlotFront()
-        #CA_SlotFront_ShowRange()
+        CA_SlotFront()        
+        CA_SlotFront_ShowRange()
         #CA_SlotFront_ShowQOL()
         
-        CA_SlotLeft()
+        CA_SlotLeft()        
         #CA_SlotLeft_ShowRange()
         #CA_SlotLeft_ShowQOL()
         
